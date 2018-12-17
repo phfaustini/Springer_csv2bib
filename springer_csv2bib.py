@@ -18,28 +18,11 @@ class BibEntry(object):
         self.URL = None
         self.Content_Type = None
 
-    def correct_invalid_fields(self):
-        """
-        Some field are not defined in springer .csv.
-        This method converts all nan to empty string ''
-        """
-        #if isnan(self.Item_Title): self.Item_Title = ""
-        #if isnan(self.Publication_Title): self.Publication_Title = ""
-        if isnan(self.Book_Series_Title): self.Book_Series_Title = ""
-        if isnan(self.Journal_Volume): self.Journal_Volume = ""
-        if isnan(self.Journal_Issue): self.Journal_Issue = ""
-        #if isnan(self.Item_DOI): self.Item_DOI = ""
-        #if isnan(self.Authors): self.Authors = ""
-        #if isnan(self.Publication_Year): self.Publication_Year = ""
-        if self.URL is None: self.URL = ""
-        #if isnan(self.Content_Type): self.Content_Type = ""
-
     def generate_bib(self, header_id: str) -> str:
         """
         Based on its members, returns
         a string in .bib format entry
         """
-        #if self.Content_Type == "Article":
         header = "@article{"+header_id+",\n\t"
         author = "author = {{"+self.Authors+"}},\n\t"
         title = "title = {{"+self.Item_Title+"}},\n\t"
@@ -47,14 +30,16 @@ class BibEntry(object):
         volume = "volume = {{"+str(self.Journal_Volume)+"}},\n\t"
         number = "number = {{"+str(self.Journal_Issue)+"}},\n\t"
         year = "year = {{"+str(self.Publication_Year)+"}},\n\t"
+        url = "url = {{"+str(self.URL)+"}},\n\t"
         doi = "doi = {{"+str(self.Item_DOI)+"}},\n}\n\n"
-        return header+author+title+journal_book+volume+number+year+doi
+        return header+author+title+journal_book+volume+number+year+url+doi
 
 
 def _get_bibentries(filepath: str) -> list:
     if os.path.exists(filepath):
         bibentries = []
         springer_csv = pd.read_csv(filepath)
+        springer_csv.fillna('', inplace=True)
         for index, row in springer_csv.iterrows():
             bibentry = BibEntry()
             bibentry.Authors = row['Authors']
@@ -66,7 +51,7 @@ def _get_bibentries(filepath: str) -> list:
             bibentry.Journal_Volume = row['Journal Volume']
             bibentry.Publication_Title = row['Publication Title']
             bibentry.Publication_Year = row['Publication Year']
-            bibentry.correct_invalid_fields()
+            bibentry.URL = row['URL']
             bibentries.append(bibentry.generate_bib(str(index)))
         return bibentries
     else:
