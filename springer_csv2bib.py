@@ -72,7 +72,8 @@ def convert_csv2bib(filepath: str) -> bool:
     :return: True if .bib file was created, False otherwise.
     """
     bibentries = _get_bibentries(filepath)
-    bibfile = filepath.split(".")[0] + ".bib"
+    p = filepath.rfind('.')
+    bibfile = filepath[0:p] + ".bib"
     for bib in bibentries:
         with open(bibfile, 'a') as f:
             f.write(bib)
