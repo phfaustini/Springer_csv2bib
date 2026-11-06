@@ -38,8 +38,7 @@ class BibEntry(object):
 def _get_bibentries(filepath: str) -> list:
     if os.path.exists(filepath):
         bibentries = []
-        springer_csv = pd.read_csv(filepath)
-        springer_csv.fillna('', inplace=True)
+        springer_csv = pd.read_csv(filepath, dtype=str, keep_default_na=False)
         for index, row in springer_csv.iterrows():
             bibentry = BibEntry()
             bibentry.Authors = row['Authors']
